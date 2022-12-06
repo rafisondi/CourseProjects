@@ -1,0 +1,18 @@
+clear all
+clc
+
+%% Exercise 1 b) 
+
+u_vtg = 0.5;
+u_egr = 0.5;
+[sysC, linearizationPt] = getLinearModel(u_vtg, u_egr);
+
+%Discretize system:
+Ts = 0.05;
+sysD = c2d(sysC,Ts, 'zoh');
+
+%Use MPC Controller:
+N = 50; %Horizon
+[Gamma,Psi,Upsilon,Theta] = setupPredictionMatrices(sysD.A,sysD.B,sysD.C,N);
+
+%% Exercise 2a) Optimal control law D

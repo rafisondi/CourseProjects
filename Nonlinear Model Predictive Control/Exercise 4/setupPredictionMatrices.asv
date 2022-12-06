@@ -1,0 +1,53 @@
+function [Gamma, Psi, Upsilon, Theta] = setupPredictionMatrices(A, B, C, N)
+%**************************************************************************
+%   Problem Set 04, Exercise 1a Function Template                         *
+%   Model Predictive Engine Control                                       *
+%   Spring 2022, IDSC                                                     *
+%**************************************************************************
+%
+%% Get x,u,y vector sizes
+
+    n = size(A,2);        % length of model state vector x
+    l = size(B,2);        % length of model input vector u
+    m = size(C,1);        % length of model output vector y
+
+%% Define system response trajectory matrices
+  % For a discrete-time system with the state-space matrices A, B, and C, 
+  % define the matrices to calculate the system output for a predefined 
+  % horizon: y(.|k) = Gamma*(Psi*x(k) + Upsilon*u(k-1) + Theta*du(.|k))
+  
+% Derive the Gamma matrix
+    Gamma = kron(eye(N),C);
+      
+% Derive the Psi matrix
+    Psi = [];
+    for i = 1:N
+        Psi = vertcat(Psi, A^i);
+    end
+    
+% Derive the Upsilon matrix
+    Upsilon = [];
+    matSum = zeros(size(B))
+    for i = 1:N
+        for j = 0:(N-1)
+            matSum = matSum + A^j * B;
+        end
+        Upsilon = vertcat(Upsilon, matSum);
+    end
+
+% Derive the Theta matrix
+    Theta = [];
+    column = [];
+    matSum = zeros(size(B))
+    for i = 1:N
+        for j = 0:(N-1)
+            matSum = matSum + A^j * B;
+        end
+        column = vertcat(column, matSum);
+    end
+        
+   
+    Theta = horzcat(Theta , column);
+    col_tmp = zeros(size(column));
+    col_tmp((size(B,1):end) ) = column(1 : end - size(B,1) , :);
+end
